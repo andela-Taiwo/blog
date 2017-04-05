@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load urlify %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}
+{{ instance.title }} | {{ block.super }}
+{% endblock head_title %}
+
+
+
+{% block content %}
+{{comment}}
+<div class='col-sm-6 col-sm-offset-3'>
+
+	<div class="">
+		
+		  <p>{{comment.content}} </p>
+		  <footer>{{comment.user}} | {{comment.timestamp|timesince}} ago | {% if request.user == comment.user  %} <a href='{{comment.get_delete_url}}'>Delete</a> {% endif %}|
+		    {% if comment.children > 0 %} {{comment.children.count}} comment{% if comment.children.count > 1 %}s{% endif %} {% endif %}</footer>
+
+		  <div  >
+				   {% for child_comment in comment.children %}
+				   <hr />
+				  <blockquote>
+
+					  <p>{{child_comment.content}} </p>
+					  <footer>{{comment.user}} | {{comment.timestamp|timesince}} ago | {% if request.user == child_comment.user %} <a href='{{child_comment.get_delete_url}}'>Delete</a>  {% endif %} </footer>
+				  </blockquote>
+			 		{% endfor %}
+			 	{% if request.user.is_authenticated %}
+			 	 <form method="POST" action="">{% csrf_token %}
+				  	<input type="hidden" name="parent_id"  value='{{ comment.id }}'>
+
+					{{ form| crispy }}
+					<br />
+
+		 			<input class="btn btn-default" type="submit" name="" value="Reply">
+
+	 	
+
+	 		  	</form>
+	 		  	{% else %}
+	 		  	<p>You must login to post comment </p>
+	 		  	{% endif %}
+		  	
+		  </div>			 
+		
+			
+		<hr />
+	</div>
+
+    
+
+<p><div class="fb-like" data-href="{{ request.build_absolute_uri }}" data-layout="button_count" data-action="like" data-show-faces="true" data-share="true"></div>
+<hr/>
+</p>
+
+
+
+
+{% endblock content %}
